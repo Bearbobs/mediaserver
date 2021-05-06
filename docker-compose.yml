@@ -85,15 +85,17 @@ services:
 
   plex-server:
     container_name: plex-server
-    image: plexinc/pms-docker:latest
+    image: linuxserver/plex:latest
     restart: unless-stopped
     environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
       - TZ=${TZ} # timezone, defined in .env
     network_mode: host
     volumes:
       - ${ROOT}/config/plex/db:/config # plex database
-      - ${ROOT}/config/plex/transcode:/transcode # temp transcoded files
-      - ${ROOT}/complete:/data # media library
+      - ${ROOT}/complete/tv:/tv # media library
+      - ${ROOT}/complete/movies:/movies
 
   bazarr:
     container_name: bazarr
@@ -109,5 +111,42 @@ services:
       - ${ROOT}/config/bazarr:/config # config files
       - ${ROOT}/complete/movies:/movies # movies folder
       - ${ROOT}/complete/tv:/tv # tv shows folder
+  mylar3:
+    image: linuxserver/mylar3
+    container_name: mylar3
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${ROOT}/mylar/data:/config
+      - ${ROOT}/mylar/comics:/comics
+      - ${ROOT}/mylar/downloads:/downloads
+    restart: unless-stopped
+  lidarr:
+    image: linuxserver/lidarr
+    container_name: lidarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    network_mode: host
+    volumes:
+      - ${ROOT}/lidarr/config:/config
+      - ${ROOT}/music:/music
+      - ${ROOT}/music/downloads:/downloads
+    restart: unless-stopped
+  duplicati:
+    image: linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT}/dupli/config:/config
+      - ${ROOT}/backups:/backups
+      - ${ROOT}/:/source
     ports:
-      - 6767:6767
+      - 8200:8200
+    restart: unless-stopped
