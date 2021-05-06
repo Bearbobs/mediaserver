@@ -1,4 +1,6 @@
-# HTPC Download Box
+# MediaServer
+
+Yet another fork for a mediaserver usable with raspberry pi
 
 Sonarr / Radarr / Jackett / NZBGet / Deluge / OpenVPN / Plex / NZBHydra2
 
