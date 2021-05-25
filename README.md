@@ -9,7 +9,7 @@ All automated.
 
 ## Table of Contents
 
-- [HTPC Download Box](#htpc-download-box)
+- [MediaServer](#mediaserver)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
     - [Monitor TV shows/movies with Sonarr and Radarr](#monitor-tv-showsmovies-with-sonarr-and-radarr)
