@@ -1,5 +1,8 @@
 version: "3.4"
 services:
+  version: '3'
+
+services:
   deluge:
     container_name: deluge
     image: linuxserver/deluge:latest
@@ -65,9 +68,15 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT}/config/sonarr:/config # config files
-      - ${ROOT}/complete/tv:/tv # tv shows folder
+      - ${ROOT}/downloads/media/tv:/tv # tv shows folder
       - ${ROOT}/downloads:/downloads # download folder
-
+    labels:
+      # Traefik configuration, Hostname needs to be changed
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`server.local`) && PathPrefix(`/tvshows`)"
+      - "traefik.http.routers.sonarr.entrypoints=web"
+      - "traefik.http.middlewares.sonarr.stripprefix.prefixes=/tvshows"
+      - "traefik.http.services.sonarr.loadbalancer.sonarr.port=8989"
   radarr:
     container_name: radarr
     image: linuxserver/radarr:latest
@@ -80,22 +89,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT}/config/radarr:/config # config files
-      - ${ROOT}/complete/movies:/movies # movies folder
+      - ${ROOT}/downloads/media/movies:/movies # movies folder
       - ${ROOT}/downloads:/downloads # download folder
-
-  plex-server:
-    container_name: plex-server
-    image: linuxserver/plex:latest
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
-    network_mode: host
-    volumes:
-      - ${ROOT}/config/plex/db:/config # plex database
-      - ${ROOT}/complete/tv:/tv # media library
-      - ${ROOT}/complete/movies:/movies
 
   bazarr:
     container_name: bazarr
@@ -109,8 +104,8 @@ services:
       - UMASK_SET=022 #optional
     volumes:
       - ${ROOT}/config/bazarr:/config # config files
-      - ${ROOT}/complete/movies:/movies # movies folder
-      - ${ROOT}/complete/tv:/tv # tv shows folder
+      - ${ROOT}/downloads/media/movies:/movies # movies folder
+      - ${ROOT}/downloads/media/tv:/tv # tv shows folder
   mylar3:
     image: linuxserver/mylar3
     container_name: mylar3
@@ -150,3 +145,17 @@ services:
     ports:
       - 8200:8200
     restart: unless-stopped
+  plex-server:
+    container_name: plex-server
+    image: linuxserver/plex:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    network_mode: host
+    volumes:
+      - ${ROOT}/config/plex/db:/config # plex database
+      - ${ROOT}/complete/tv:/tv # media library
+      - ${ROOT}/complete/movies:/movies
+
